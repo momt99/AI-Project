@@ -3,20 +3,16 @@ package sut.mm.clothesclassifier.io;
 import java.util.Arrays;
 import java.util.List;
 
-public class IDXUnsignedByteData extends IDXData {
+public class IDXUnsignedByteData {
 
     private static int convertToUnsignedByte(byte signed) {
         return 0xff & signed;
     }
 
-    public IDXUnsignedByteData(IDXData base) {
-        this(base.dimensions, base.rawData);
-    }
+    private IDXData base;
 
-    public IDXUnsignedByteData(List<Integer> dimensions, byte[][] rawData) {
-        super(dimensions, rawData);
-        if (rawData[0].length != IDXDataType.UBYTE.getSize())
-            throw new IllegalArgumentException("Data type must be unsigned byte.");
+    public IDXUnsignedByteData(IDXData base) {
+        this.base = base;
     }
 
     public int[] getAllElements() {
@@ -46,4 +42,23 @@ public class IDXUnsignedByteData extends IDXData {
         return convertToUnsignedByte(raw[0]);
     }
 
+    public List<Integer> getDimensions() {
+        return base.getDimensions();
+    }
+
+    public byte[][] getAllRawElements() {
+        return base.getAllRawElements();
+    }
+
+    public byte[] getRawElement(int i) {
+        return base.getRawElement(i);
+    }
+
+    public byte[] getRawElement(int x, int y) {
+        return base.getRawElement(x, y);
+    }
+
+    public byte[] getRawElement(int... location) {
+        return base.getRawElement(location);
+    }
 }

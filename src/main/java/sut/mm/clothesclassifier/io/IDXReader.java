@@ -3,9 +3,7 @@ package sut.mm.clothesclassifier.io;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.stream.IntStream;
 
 public class IDXReader {
@@ -32,6 +30,10 @@ public class IDXReader {
 
         dataType = IDXDataType.getByTypeValue(input.readUnsignedByte());
         dimensions = new int[input.readUnsignedByte()];
+    }
+
+    public int[] getDimensions() {
+        return Arrays.copyOf(dimensions, dimensions.length);
     }
 
     public IDXData nextData(int dimensionsCount) throws IOException {
