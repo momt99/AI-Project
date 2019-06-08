@@ -13,7 +13,7 @@ public class MNISTImage {
                     IntStream.of(1),    //bias
                     Arrays.stream(img.pixels)
                             .flatMapToInt(Arrays::stream))
-                    .mapToDouble(value -> value * 1.0)
+                    .mapToDouble(value -> value * 1.0 / 255.0)
                     .toArray());
 
 
