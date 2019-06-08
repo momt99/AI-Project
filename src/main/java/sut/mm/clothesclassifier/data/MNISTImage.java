@@ -29,5 +29,4 @@ public class MNISTImage {
                 pixels[x][y] = idxData.getElement(x, y);
     }
 
-
 }

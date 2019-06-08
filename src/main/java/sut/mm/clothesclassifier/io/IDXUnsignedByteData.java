@@ -2,6 +2,7 @@ package sut.mm.clothesclassifier.io;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.IntStream;
 
 public class IDXUnsignedByteData {
 
@@ -16,9 +17,12 @@ public class IDXUnsignedByteData {
     }
 
     public int[] getAllElements() {
+        return getAllElementsStream().toArray();
+    }
+
+    public IntStream getAllElementsStream() {
         return Arrays.stream(getAllRawElements())
-                .mapToInt(bytes -> convertToUnsignedByte(bytes[0]))
-                .toArray();
+                .mapToInt(bytes -> convertToUnsignedByte(bytes[0]));
     }
 
     /**
