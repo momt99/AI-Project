@@ -1,5 +1,6 @@
 package sut.mm.clothesclassifier.io;
 
+import java.util.Arrays;
 import java.util.List;
 
 public class IDXUnsignedByteData extends IDXData {
@@ -18,9 +19,14 @@ public class IDXUnsignedByteData extends IDXData {
             throw new IllegalArgumentException("Data type must be unsigned byte.");
     }
 
+    public int[] getAllElements() {
+        return Arrays.stream(getAllRawElements())
+                .mapToInt(bytes -> convertToUnsignedByte(bytes[0]))
+                .toArray();
+    }
 
     /**
-     * A shortcut function for 1D data to improve the performance
+     * A shortcut method for 1D data to improve the performance
      */
     public int getElement(int i) {
         byte[] raw = getRawElement(i);
@@ -28,7 +34,7 @@ public class IDXUnsignedByteData extends IDXData {
     }
 
     /**
-     * A shortcut function for 2D data to improve the performance
+     * A shortcut method for 2D data to improve the performance
      */
     public int getElement(int x, int y) {
         byte[] raw = getRawElement(x, y);

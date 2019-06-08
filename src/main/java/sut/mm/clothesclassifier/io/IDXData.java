@@ -25,8 +25,12 @@ public class IDXData {
         return Collections.unmodifiableList(dimensions);
     }
 
+    public byte[][] getAllRawElements() {
+        return rawData;
+    }
+
     /**
-     * A shortcut function for 1D data to improve the performance
+     * A shortcut method for 1D data to improve the performance
      */
     public byte[] getRawElement(int i) {
         if (dimensions.size() != 2)
@@ -35,7 +39,7 @@ public class IDXData {
     }
 
     /**
-     * A shortcut function for 2D data to improve the performance
+     * A shortcut method for 2D data to improve the performance
      */
     public byte[] getRawElement(int x, int y) {
         if (dimensions.size() != 2)
