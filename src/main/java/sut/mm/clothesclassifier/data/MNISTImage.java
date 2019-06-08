@@ -4,13 +4,17 @@ import org.apache.commons.math3.linear.ArrayRealVector;
 import sut.mm.clothesclassifier.io.IDXUnsignedByteData;
 
 import java.util.Arrays;
+import java.util.stream.IntStream;
 
 public class MNISTImage {
-    private static int WIDTH = 28, HEIGHT = 28;
-    public static FeatureProvider<MNISTImage> featureProvider = img -> new ArrayRealVector(Arrays.stream(img.pixels)
-            .flatMapToInt(Arrays::stream)
-            .mapToDouble(value -> value * 1.0)
-            .toArray());
+    public static final int WIDTH = 28, HEIGHT = 28;
+    public static final FeatureProvider<MNISTImage> featureProvider = img -> new ArrayRealVector(
+            IntStream.concat(
+                    IntStream.of(1),    //bias
+                    Arrays.stream(img.pixels)
+                            .flatMapToInt(Arrays::stream))
+                    .mapToDouble(value -> value * 1.0)
+                    .toArray());
 
 
     private int[][] pixels;

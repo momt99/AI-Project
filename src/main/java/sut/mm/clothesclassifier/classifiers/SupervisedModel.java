@@ -11,6 +11,10 @@ import java.util.function.Function;
 public abstract class SupervisedModel<TData> {
     protected FeatureProvider<TData> featureProvider;
 
+    public SupervisedModel(FeatureProvider<TData> featureProvider) {
+        this.featureProvider = featureProvider;
+    }
+
     /**
      * Inputs the data and trains the model
      *
