@@ -29,7 +29,11 @@ public abstract class SupervisedModel<TData> {
      * @param data the data which provides features
      * @return the label with the best score
      */
-    public abstract int predictBestLabel(TData data);
+    public int predictBestLabel(TData data) {
+        return predictBestLabel(featureProvider.getFeatures(data));
+    }
+
+    protected abstract int predictBestLabel(RealVector features);
 
     /**
      * Predicts a score for each possible label
@@ -37,7 +41,11 @@ public abstract class SupervisedModel<TData> {
      * @param data the data which provides features
      * @return the labels with their scores
      */
-    public List<Pair<Integer, Float>> predict(TData data) {
+    public List<Pair<Integer, Double>> predict(TData data) {
+        return predict(featureProvider.getFeatures(data));
+    }
+
+    public List<Pair<Integer, Double>> predict(RealVector features) {
         throw new UnsupportedOperationException();
     }
 
