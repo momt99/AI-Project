@@ -1,12 +1,13 @@
 package sut.mm.clothesclassifier.io;
 
+import java.io.Closeable;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.stream.IntStream;
 
-public class IDXReader {
+public class IDXReader implements Closeable {
     private DataInputStream input;
 
     private IDXDataType dataType;
@@ -49,4 +50,8 @@ public class IDXReader {
                 , raw);
     }
 
+    @Override
+    public void close() throws IOException {
+        input.close();
+    }
 }

@@ -1,10 +1,19 @@
 package sut.mm.clothesclassifier.classifiers;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import org.apache.commons.math3.linear.ArrayRealVector;
 import org.apache.commons.math3.linear.RealVector;
 import sut.mm.clothesclassifier.data.FeatureProvider;
 import sut.mm.clothesclassifier.utils.Pair;
 
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
@@ -15,10 +24,11 @@ import java.util.stream.IntStream;
 public class PerceptronModel<TData> extends SupervisedModel<TData> {
 
     private final int featuresCount;
-    private final int labelsCount;
-    private final double learningRate;
+    private int labelsCount;
+    private double learningRate;
+    protected int trainCount = 0;
 
-    private RealVector[] ws;
+    protected RealVector[] ws;
 
     public PerceptronModel(FeatureProvider<TData> featureProvider, int featuresCount, int labelsCount, double learningRate) {
         super(featureProvider);
@@ -35,12 +45,17 @@ public class PerceptronModel<TData> extends SupervisedModel<TData> {
         }
     }
 
+    public PerceptronModel(FeatureProvider<TData> featureProvider, int featuresCount, int labelsCount) {
+        this(featureProvider, featuresCount, labelsCount, 1);
+    }
+
     public List<RealVector> getWeights() {
         return Arrays.asList(ws);
     }
 
     @Override
     protected void train(RealVector features, int label) {
+        trainCount++;
         int maxIndex = predictBestLabel(features);
         if (maxIndex == label)
             return;
@@ -63,5 +78,32 @@ public class PerceptronModel<TData> extends SupervisedModel<TData> {
         return IntStream.range(0, labelsCount)
                 .mapToObj(i -> new Pair<>(i, ws[i].dotProduct(features)))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public void save(String path) throws IOException {
+        try (FileWriter writer = new FileWriter(Paths.get(path, toString() + ".json").toFile())) {
+            new Gson().toJson(this, writer);
+        }
+    }
+
+    @Override
+    public void load(String path) throws IOException {
+        try (FileReader reader = new FileReader(path)) {
+            loadFromJson(new JsonParser().parse(reader).getAsJsonObject());
+        }
+    }
+
+    protected void loadFromJson(JsonObject tree) {
+        Gson deserializer = new Gson();
+        this.ws = deserializer.fromJson(tree.get("ws"), ArrayRealVector[].class);
+        this.labelsCount = this.ws.length;
+        this.learningRate = tree.get("learningRate").getAsDouble();
+        this.trainCount = tree.get("trainCount").getAsInt();
+    }
+
+    @Override
+    public String toString() {
+        return String.format("Perceptron-%d-%f", trainCount, learningRate);
     }
 }

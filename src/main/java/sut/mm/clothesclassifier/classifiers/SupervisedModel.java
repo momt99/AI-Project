@@ -4,12 +4,13 @@ import org.apache.commons.math3.linear.RealVector;
 import sut.mm.clothesclassifier.data.FeatureProvider;
 import sut.mm.clothesclassifier.utils.Pair;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
 public abstract class SupervisedModel<TData> {
-    protected FeatureProvider<TData> featureProvider;
+    protected transient FeatureProvider<TData> featureProvider;
 
     public SupervisedModel(FeatureProvider<TData> featureProvider) {
         this.featureProvider = featureProvider;
@@ -67,5 +68,13 @@ public abstract class SupervisedModel<TData> {
                 correct++;
         }
         return correct * 1f / count;
+    }
+
+    public void save(String path) throws IOException {
+        throw new UnsupportedOperationException();
+    }
+
+    public void load(String path) throws IOException {
+        throw new UnsupportedOperationException();
     }
 }
