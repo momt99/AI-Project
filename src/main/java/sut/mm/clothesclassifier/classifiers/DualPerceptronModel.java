@@ -51,7 +51,7 @@ public class DualPerceptronModel<TData> extends PerceptronModel<TData> {
         int max = Integer.MIN_VALUE;
         int maxLabel = Integer.MIN_VALUE;
 
-        for (int i = 0; i < alphas.length; i++) {
+        for (int i = 0; i < trainCount + 1; i++) {
 
             int currentResult = 0;
             IntVector currentVector = alphas[i];
