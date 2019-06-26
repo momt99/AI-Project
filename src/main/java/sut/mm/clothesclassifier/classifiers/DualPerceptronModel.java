@@ -1,28 +1,36 @@
 package sut.mm.clothesclassifier.classifiers;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import com.sun.org.apache.xml.internal.utils.IntVector;
+import org.apache.commons.math3.linear.ArrayRealVector;
 import org.apache.commons.math3.linear.RealVector;
 import sut.mm.clothesclassifier.data.FeatureProvider;
 
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 
 public class DualPerceptronModel<TData> extends PerceptronModel<TData> {
 
-    private ArrayList<RealVector> perceptionCache = new ArrayList<>();
-    private static final double MAX_PERCEPTION = 60000;
-    private IntVector[] alphas;
+    private transient ArrayList<RealVector> perceptionCache = new ArrayList<>();
+    private static final int MAX_PERCEPTION = 60000;
+    private RealVector[] alphas;
 
     public DualPerceptronModel(FeatureProvider<TData> featureProvider, int featuresCount, int labelsCount) {
         super(featureProvider, featuresCount, labelsCount);
 
         // alpha int vector for every label
-        alphas = new IntVector[labelsCount];
+        alphas = new RealVector[labelsCount];
 
         // initiate every class alpha vector to <1: 0,2: 0,...,MAX_PERCEPTION: 0>
-        for (IntVector alpha : alphas) {
+        for (int i = 0; i < labelsCount; i++) {
+            RealVector alpha = new ArrayRealVector(MAX_PERCEPTION);
             for (int j = 0; j < MAX_PERCEPTION; j++) {
-                alpha.setElementAt(0, j);
+                alpha.setEntry(0, j);
             }
+            alphas[i] = alpha;
         }
     }
 
@@ -35,13 +43,13 @@ public class DualPerceptronModel<TData> extends PerceptronModel<TData> {
         if (maxIndex == label)
             return;
 
-        IntVector vector = alphas[maxIndex];
-        IntVector vectorStar = alphas[label];
+        RealVector vector = alphas[maxIndex];
+        RealVector vectorStar = alphas[label];
 
         // alpha(y,n) = alpha(y,n) - 1
-        vector.setElementAt(vector.elementAt(trainCount) - 1, trainCount);
+        vector.setEntry(trainCount, vector.getEntry(trainCount) - 1);
         // alpha(y*,n) = alpha(y*,n) + 1
-        vectorStar.setElementAt(vectorStar.elementAt(trainCount) + 1, trainCount);
+        vectorStar.setEntry(trainCount, vectorStar.getEntry(trainCount) + 1);
 
         trainCount++;
     }
@@ -51,15 +59,15 @@ public class DualPerceptronModel<TData> extends PerceptronModel<TData> {
         int max = Integer.MIN_VALUE;
         int maxLabel = Integer.MIN_VALUE;
 
-        for (int i = 0; i < trainCount + 1; i++) {
+        for (int i = 0; i < alphas.length; i++) {
 
             int currentResult = 0;
-            IntVector currentVector = alphas[i];
+            RealVector currentVector = alphas[i];
 
-            for (int j = 0; j < currentVector.size(); j++) {
-                int currentValue = currentVector.elementAt(j);
-                if (currentValue != 0){
-                    currentResult += currentValue * kernel(perceptionCache.get(i), features);
+            for (int j = 0; j < trainCount + 1; j++) {
+                double currentValue = currentVector.getEntry(j);
+                if (currentValue != 0) {
+                    currentResult += currentValue * kernel(perceptionCache.get(j), features);
                 }
             }
 
@@ -72,8 +80,24 @@ public class DualPerceptronModel<TData> extends PerceptronModel<TData> {
         return maxLabel;
     }
 
-    private double kernel(RealVector vector1, RealVector vector2){
+    private double kernel(RealVector vector1, RealVector vector2) {
         return vector1.dotProduct(vector2);
     }
 
+    @Override
+    public void save(String path) throws IOException {
+        try (FileWriter writer = new FileWriter(Paths.get(path, toString() + ".json").toFile())) {
+            new Gson().toJson(this, writer);
+        }
+    }
+
+    @Override
+    public void load(String path) throws IOException {
+        super.load(path);
+    }
+
+    protected void loadFromJson(JsonObject tree) {
+        Gson deserializer = new Gson();
+        this.alphas = deserializer.fromJson(tree.get("alphas"), ArrayRealVector[].class);
+    }
 }
