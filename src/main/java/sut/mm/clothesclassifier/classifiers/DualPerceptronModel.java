@@ -58,12 +58,12 @@ public class DualPerceptronModel<TData> extends PerceptronModel<TData> {
 
     @Override
     public int predictBestLabel(RealVector features) {
-        int max = Integer.MIN_VALUE;
+        double max = Integer.MIN_VALUE;
         int maxLabel = Integer.MIN_VALUE;
 
         for (int i = 0; i < alphas.length; i++) {
 
-            int currentResult = 0;
+            double currentResult = 0;
             RealVector currentVector = alphas[i];
 
             for (int j = 0; j < trainCount; j++) {
@@ -103,5 +103,10 @@ public class DualPerceptronModel<TData> extends PerceptronModel<TData> {
     protected void loadFromJson(JsonObject tree) {
         Gson deserializer = new Gson();
         this.alphas = deserializer.fromJson(tree.get("alphas"), ArrayRealVector[].class);
+    }
+
+    @Override
+    public String toString() {
+        return String.format("Perceptron-%07d", trainCount);
     }
 }
