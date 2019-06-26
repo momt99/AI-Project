@@ -5,6 +5,7 @@ import sut.mm.clothesclassifier.data.FeatureProvider;
 import sut.mm.clothesclassifier.utils.Pair;
 
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -26,7 +27,7 @@ public abstract class SupervisedModel<TData> {
         train(featureProvider.getFeatures(data), label);
     }
 
-    protected abstract void train(RealVector features, int label);
+    public abstract void train(RealVector features, int label);
 
     /**
      * Predicts the best label for the given data
@@ -63,6 +64,16 @@ public abstract class SupervisedModel<TData> {
     public float evaluate(Iterable<Pair<TData, Integer>> testData) {
         int count = 0, correct = 0;
         for (Pair<TData, Integer> testDatum : testData) {
+            count++;
+            if (predictBestLabel(testDatum.getFirst()) == testDatum.getSecond())
+                correct++;
+        }
+        return correct * 1f / count;
+    }
+
+    public float evaluateRaw(Iterable<Pair<RealVector, Integer>> testData) {
+        int count = 0, correct = 0;
+        for (Pair<RealVector, Integer> testDatum : testData) {
             count++;
             if (predictBestLabel(testDatum.getFirst()) == testDatum.getSecond())
                 correct++;

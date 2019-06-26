@@ -39,9 +39,9 @@ public class PerceptronModel<TData> extends SupervisedModel<TData> {
         Random r = new Random();
         for (int i = 0; i < ws.length; i++) {
             ws[i] = new ArrayRealVector(featuresCount);
-            ws[i].setEntry(0, 1);   //bias
-            for (int j = 1; j < ws[i].getDimension(); j++)
-                ws[i].setEntry(j, r.nextDouble());
+//            ws[i].setEntry(0, 1);   //bias
+//            for (int j = 1; j < ws[i].getDimension(); j++)
+//                ws[i].setEntry(j, r.nextDouble());
         }
     }
 
@@ -54,7 +54,7 @@ public class PerceptronModel<TData> extends SupervisedModel<TData> {
     }
 
     @Override
-    protected void train(RealVector features, int label) {
+    public void train(RealVector features, int label) {
         trainCount++;
         int maxIndex = predictBestLabel(features);
         if (maxIndex == label)
@@ -104,6 +104,6 @@ public class PerceptronModel<TData> extends SupervisedModel<TData> {
 
     @Override
     public String toString() {
-        return String.format("Perceptron-%d-%f", trainCount, learningRate);
+        return String.format("Perceptron-%07d-%f", trainCount, learningRate);
     }
 }

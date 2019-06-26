@@ -36,8 +36,8 @@ public class IDXUnsignedByteData {
     /**
      * A shortcut method for 2D data to improve the performance
      */
-    public int getElement(int x, int y) {
-        byte[] raw = getRawElement(x, y);
+    public int getElement(int i, int j) {
+        byte[] raw = getRawElement(i, j);
         return convertToUnsignedByte(raw[0]);
     }
 
@@ -58,8 +58,8 @@ public class IDXUnsignedByteData {
         return base.getRawElement(i);
     }
 
-    public byte[] getRawElement(int x, int y) {
-        return base.getRawElement(x, y);
+    public byte[] getRawElement(int i, int j) {
+        return base.getRawElement(i, j);
     }
 
     public byte[] getRawElement(int... location) {

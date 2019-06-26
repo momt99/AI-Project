@@ -16,7 +16,7 @@ public class MIRAModel<TData> extends PerceptronModel<TData> {
     }
 
     @Override
-    protected void train(RealVector features, int label) {
+    public void train(RealVector features, int label) {
         trainCount++;
         int maxIndex = predictBestLabel(features);
         if (maxIndex == label)
