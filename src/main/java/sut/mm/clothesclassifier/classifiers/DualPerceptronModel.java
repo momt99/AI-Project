@@ -29,9 +29,6 @@ public class DualPerceptronModel<TData> extends PerceptronModel<TData> {
         // initiate every class alpha vector to <1: 0,2: 0,...,MAX_PERCEPTION: 0>
         for (int i = 0; i < labelsCount; i++) {
             RealVector alpha = new ArrayRealVector(MAX_PERCEPTION);
-            for (int j = 0; j < MAX_PERCEPTION; j++) {
-                alpha.setEntry(0, j);
-            }
             alphas[i] = alpha;
         }
     }
@@ -42,8 +39,10 @@ public class DualPerceptronModel<TData> extends PerceptronModel<TData> {
         perceptionCache.add(features);
 
         int maxIndex = predictBestLabel(features);
-        if (maxIndex == label)
+        if (maxIndex == label) {
+            trainCount++;
             return;
+        }
 
         RealVector vector = alphas[maxIndex];
         RealVector vectorStar = alphas[label];
@@ -103,10 +102,11 @@ public class DualPerceptronModel<TData> extends PerceptronModel<TData> {
     protected void loadFromJson(JsonObject tree) {
         Gson deserializer = new Gson();
         this.alphas = deserializer.fromJson(tree.get("alphas"), ArrayRealVector[].class);
+        this.trainCount = tree.get("trainCount").getAsInt();
     }
 
     @Override
     public String toString() {
-        return String.format("Perceptron-%07d", trainCount);
+        return String.format("Kernelized-%07d", trainCount);
     }
 }
