@@ -2,11 +2,13 @@ package sut.mm.clothesclassifier.classifiers;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.sun.org.apache.xml.internal.utils.IntVector;
 import org.apache.commons.math3.linear.ArrayRealVector;
 import org.apache.commons.math3.linear.RealVector;
 import sut.mm.clothesclassifier.data.FeatureProvider;
 
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Paths;
@@ -64,7 +66,7 @@ public class DualPerceptronModel<TData> extends PerceptronModel<TData> {
             int currentResult = 0;
             RealVector currentVector = alphas[i];
 
-            for (int j = 0; j < trainCount + 1; j++) {
+            for (int j = 0; j < trainCount; j++) {
                 double currentValue = currentVector.getEntry(j);
                 if (currentValue != 0) {
                     currentResult += currentValue * kernel(perceptionCache.get(j), features);
@@ -93,7 +95,9 @@ public class DualPerceptronModel<TData> extends PerceptronModel<TData> {
 
     @Override
     public void load(String path) throws IOException {
-        super.load(path);
+        try (FileReader reader = new FileReader(path)) {
+            loadFromJson(new JsonParser().parse(reader).getAsJsonObject());
+        }
     }
 
     protected void loadFromJson(JsonObject tree) {
