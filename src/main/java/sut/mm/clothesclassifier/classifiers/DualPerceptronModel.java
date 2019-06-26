@@ -1,58 +1,79 @@
 package sut.mm.clothesclassifier.classifiers;
 
-import org.apache.commons.math3.linear.ArrayRealVector;
+import com.sun.org.apache.xml.internal.utils.IntVector;
 import org.apache.commons.math3.linear.RealVector;
 import sut.mm.clothesclassifier.data.FeatureProvider;
 
-import java.util.Comparator;
-import java.util.Random;
-import java.util.stream.IntStream;
+import java.util.ArrayList;
 
-/**
- * Created by mahdihs76 on 6/11/19.
- */
-public class DualPerceptronModel<TData> extends SupervisedModel<TData> {
+public class DualPerceptronModel<TData> extends PerceptronModel<TData> {
 
-    protected int trainCount = 0;
-    private int featuresCount;
-    private int labelsCount;
-    protected RealVector[] ws;
-    protected RealVector alpha;
+    private ArrayList<RealVector> perceptionCache = new ArrayList<>();
+    private static final double MAX_PERCEPTION = 60000;
+    private IntVector[] alphas;
 
     public DualPerceptronModel(FeatureProvider<TData> featureProvider, int featuresCount, int labelsCount) {
-        super(featureProvider);
-        this.featuresCount = featuresCount;
-        this.alpha = new ArrayRealVector(featuresCount, 0);
-        this.ws = new RealVector[labelsCount];
-        Random r = new Random();
-        for (int i = 0; i < ws.length; i++) {
-            ws[i] = new ArrayRealVector(featuresCount);
-            ws[i].setEntry(0, 1);   //bias
-            for (int j = 1; j < ws[i].getDimension(); j++)
-                ws[i].setEntry(j, r.nextDouble());
+        super(featureProvider, featuresCount, labelsCount);
+
+        // alpha int vector for every label
+        alphas = new IntVector[labelsCount];
+
+        // initiate every class alpha vector to <1: 0,2: 0,...,MAX_PERCEPTION: 0>
+        for (IntVector alpha : alphas) {
+            for (int j = 0; j < MAX_PERCEPTION; j++) {
+                alpha.setElementAt(0, j);
+            }
         }
     }
 
     @Override
     protected void train(RealVector features, int label) {
-        trainCount++;
+
+        perceptionCache.add(features);
+
         int maxIndex = predictBestLabel(features);
         if (maxIndex == label)
             return;
 
-        alpha.setEntry(label, alpha.getEntry(label) + 1);
-        alpha.setEntry(maxIndex, alpha.getEntry(maxIndex) - 1);
+        IntVector vector = alphas[maxIndex];
+        IntVector vectorStar = alphas[label];
+
+        // alpha(y,n) = alpha(y,n) - 1
+        vector.setElementAt(vector.elementAt(trainCount) - 1, trainCount);
+        // alpha(y*,n) = alpha(y*,n) + 1
+        vectorStar.setElementAt(vectorStar.elementAt(trainCount) + 1, trainCount);
+
+        trainCount++;
     }
 
     @Override
-    protected int predictBestLabel(RealVector features) {
-        return IntStream.range(0, labelsCount)
-                .boxed()
-                .max(Comparator.comparingDouble(i -> alpha.getEntry(i) * similarityFunction(features, ws[i])))
-                .get();
+    public int predictBestLabel(RealVector features) {
+        int max = Integer.MIN_VALUE;
+        int maxLabel = Integer.MIN_VALUE;
+
+        for (int i = 0; i < alphas.length; i++) {
+
+            int currentResult = 0;
+            IntVector currentVector = alphas[i];
+
+            for (int j = 0; j < currentVector.size(); j++) {
+                int currentValue = currentVector.elementAt(j);
+                if (currentValue != 0){
+                    currentResult += currentValue * kernel(perceptionCache.get(i), features);
+                }
+            }
+
+            if (currentResult > max) {
+                max = currentResult;
+                maxLabel = i;
+            }
+        }
+
+        return maxLabel;
     }
 
-    private double similarityFunction(RealVector features, RealVector vector) {
-        return vector.dotProduct(features);
+    private double kernel(RealVector vector1, RealVector vector2){
+        return vector1.dotProduct(vector2);
     }
+
 }
