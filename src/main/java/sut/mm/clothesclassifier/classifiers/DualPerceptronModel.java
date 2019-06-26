@@ -27,7 +27,7 @@ public class DualPerceptronModel<TData> extends PerceptronModel<TData> {
     }
 
     @Override
-    protected void train(RealVector features, int label) {
+    public void train(RealVector features, int label) {
 
         perceptionCache.add(features);
 
